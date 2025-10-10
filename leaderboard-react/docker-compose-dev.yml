@@ -1,0 +1,47 @@
+networks:
+    leaderboard-net:
+        driver: bridge
+
+volumes:
+    mysql-data:
+
+services:
+    mysql-db:
+        image: mysql:8
+        container_name: mysql-db
+        environment:
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: leaderboard
+        ports:
+            - "3306:3306"
+        volumes:
+            - mysql-data:/var/lib/mysql
+        networks:
+            - leaderboard-net
+
+    backend:
+        depends_on:
+            - mysql-db
+        # command: npm run dev
+        command: sh -c "npx wait-port mysql-db:3306 && npm run dev"
+        environment:
+            DB_TYPE: mysql
+            MYSQL_HOST: mysql-db
+            MYSQL_USER: root
+            MYSQL_PASSWORD: secret
+            MYSQL_DATABASE: leaderboard
+        # volumes:
+        #     - ./backend-lb:/app
+        #     - /app/node_modules
+        networks:
+            - leaderboard-net
+
+    frontend:
+        # command: npm start -- --host 0.0.0.0
+        # environment:
+        #     CHOKIDAR_USEPOLLING: true
+        networks:
+            - leaderboard-net
+        # volumes:
+        #     - ./frontend:/app
+        #     - /app/node_modules
