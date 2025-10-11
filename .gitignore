@@ -26,6 +26,7 @@ yarn-error.log*
 
 # dev
 *.sql
+*.csv
 readme.txt
 
 app
