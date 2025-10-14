@@ -127,10 +127,10 @@ function App() {
             <ul className="space-y-2">
                 {sortedScores.map((s, i) => (
                     <li key={i} className="grid grid-cols-4 gap-4 bg-gray-800 p-3 rounded-lg hover:bg-gray-700 transition">
-                        <div>{i + 1}</div>
-                        <div className="truncate">{s.player_name}</div>
-                        <div className="text-yellow-400">{formatTime(s.time_ms)}</div>
-                        <div className="text-green-400">{s.enemies_destroyed}</div>
+                        <div className="mission_id">{i + 1}</div>
+                        <div className="score-player truncate">{s.player_name}</div>
+                        <div className="score-time text-yellow-400">{formatTime(s.time_ms)}</div>
+                        <div className="score-enemies_destroyed text-green-400">{s.enemies_destroyed}</div>
                     </li>
                 ))}
             </ul>

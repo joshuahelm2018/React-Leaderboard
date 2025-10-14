@@ -1,18 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { LeaderboardPage } from './pages/leaderboard-page';
 
-test('loads and displays entries', async ({ page }) => {
+test('displays a title with mission ID', async ({ page }) => {
     const leaderboard = new LeaderboardPage(page);
     await leaderboard.open();
 
     const title = await leaderboard.getTitleText();
     expect(title).toMatch(/^\d+ - .*/);
-
-    const scores = await leaderboard.getScoresText();
-    expect(scores[0]).toContain(':');
 });
 
-test('entries display proper time format', async ({ page }) => {
+test('scores in hh:mm format', async ({ page }) => {
     const leaderboard = new LeaderboardPage(page);
     await leaderboard.open();
 

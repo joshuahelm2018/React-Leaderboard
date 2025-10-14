@@ -1,0 +1,21 @@
+{
+  "name": "selenium",
+  "version": "1.0.0",
+  "main": "leaderboard.spec.js",
+  "type": "module",
+  "scripts": {
+    "test": "mocha ./specs/**/*.test.js --timeout 5000"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "chai": "^6.2.0",
+    "mocha": "^11.7.4",
+    "selenium-webdriver": "^4.36.0"
+  },
+  "description": ""
+}

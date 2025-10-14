@@ -1,0 +1,1 @@
+This is a simple Leaderboard app for a game that is split up by mission. The app is written in Create React and has Playwright and Selenium tests in frontend/tests.
