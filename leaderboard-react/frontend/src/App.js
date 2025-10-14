@@ -34,17 +34,26 @@ function App() {
     const sortedScores = [...scores].sort((a, b) => computeScore(a) - computeScore(b));
 
     const handleClickPrevBtn = () => {
-        setCurrentMission(prev => missions.length > 0 ? Math.max(1, prev - 1) : prev);
+        setCurrentMission(prev => {
+            const newMission = missions.length > 0 ? Math.max(1, prev - 1) : prev;
+            const params = new URLSearchParams(window.location.search);
+
+            params.set("mission_id", newMission);
+            window.history.replaceState({}, "", `${window.location.pathname}?${params}`);
+
+            return newMission;
+        });
     }
 
     const handleClickNextBtn = () => {
         setCurrentMission(prev => {
-            console.log(missions.length);
-            console.log(`${prev} + 1 = ${prev + 1}`);
-            console.log(`${missions.length} - 1 = ${missions.length - 1}`);
-            console.log(`Math.min(${prev + 1}, ${missions.length - 1}) = ${Math.min(prev + 1, missions.length)}`);
+            const newMission = missions.length > 0 ? Math.min(prev + 1, missions.length) : prev;
+            const params = new URLSearchParams(window.location.search);
 
-            return missions.length > 0 ? Math.min(prev + 1, missions.length) : prev;
+            params.set("mission_id", newMission);
+            window.history.replaceState({}, "", `${window.location.pathname}?${params}`);
+
+            return newMission;
         });
     }
 
@@ -53,8 +62,23 @@ function App() {
         .then(res => res.json())
         .then(data => {
             setMissions(data);
-            if (data.length > 0 && !isNaN(data[0].id)) setCurrentMission(Number(data[0].id));
-        });
+
+            const params = new URLSearchParams(window.location.search);
+
+            console.log("Full search string:", window.location.search);
+            console.log("mission param:", params.get("mission_id"));
+
+            const missionFromUrl = Number(params.get("mission_id"))
+
+            if (!isNaN(missionFromUrl) && data.some(m => m.id === missionFromUrl)) {
+                console.log("found mission: ", missionFromUrl);
+                setCurrentMission(missionFromUrl);
+            } else if (data.length > 0 && !isNaN(data[0].id)) {
+                console.error("could not find mission: ", missionFromUrl);
+                setCurrentMission(Number(data[0].id));
+            }
+        })
+        .catch(err => console.error("Error fetching missions:", err));
     }, []);
 
     useEffect(() => {

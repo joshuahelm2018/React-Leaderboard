@@ -1,71 +1,59 @@
 import { test, expect } from '@playwright/test';
+import { LeaderboardPage } from './pages/leaderboard-page';
 
-test('loads leaderboard and shows entries', async ({ page }) => {
-    await page.goto('http://localhost');
-  
-    // Check that the title exists
-    await expect(page.locator('h1')).toHaveText(new RegExp(`^(\\d+) - .*`));
+test('loads and displays entries', async ({ page }) => {
+    const leaderboard = new LeaderboardPage(page);
+    await leaderboard.open();
 
-      const scores = page.locator('ul li');
-      await expect(scores.first()).toBeVisible();
-
-      await expect(scores.first()).toContainText(':');
+    await leaderboard.hasVisibleScores();
 });
 
-test('leaderboard scores are sorted by time ascending', async ({ page }) => {
-    await page.goto('http://localhost');
+test('entries display proper time format', async ({ page }) => {
+    const leaderboard = new LeaderboardPage(page);
+    await leaderboard.open();
 
-    const scores = page.locator('ul li');
-    await expect(scores.first()).toBeVisible();
+    await leaderboard.scoresDisplayProperTimeFormat();
+});
 
-    // await page.pause();
+test('scores are sorted by time ascending', async ({ page }) => {
+    const leaderboard = new LeaderboardPage(page);
+    await leaderboard.open();
 
-    const times = [];
-    const count = await scores.count();
-    for (let i = 0; i < count; i++) {
-        const text = await scores.nth(i).textContent();
-        const match = text.match(/: ^([0-9]|1[0-9]|2[0-3]):(?:[0-5])(?:[0-9])$/);
-        if (match) {
-            times.push(parseInt(match[1], 10));
-        }
-    }
+    await leaderboard.isSortedAscending();
+});
 
-    // await page.pause();
+test('can load specified mission id', async ({ page }) => {
+    const leaderboard = new LeaderboardPage(page);
+    await leaderboard.open(1);
+    leaderboard.titleHasMissionId(1);
 
-    for (let i = 0; i < times.length - 1; i++) {
-        expect(times[i]).toBeLessThanOrEqual(times[i + 1]);
-        await page.pause();
-    }
+    let min = 2;
+    let max = await leaderboard.getLastMissionId();
+    let randMission = Math.floor(Math.random() * (max - min + 1)) + min;
+    console.log(`random mission: ${randMission}`);
+
+    await leaderboard.open(randMission);
+    await leaderboard.titleHasMissionId(randMission);
+
+    await page.pause();
 });
 
 test('previous button does not decrement when on first mission', async ({ page }) => {
-    await page.goto('http://localhost');
+    const leaderboard = new LeaderboardPage(page);
+    await leaderboard.open();
 
-    const missionHeader = page.locator('h1');
-    await expect(missionHeader).toHaveText(/1 -/);
-
-    const prevBtn = page.locator('button', { hasText: '⬅' });
-    await prevBtn.click();
-
-    await expect(missionHeader).toHaveText(/1 -/);
+    await leaderboard.onFirstMission();
+    await leaderboard.prevBtnDoesNotDecrement();
 });
 
 test('next button does not increase when on last mission', async ({ page }) => {
-    await page.goto('http://localhost');
+    const leaderboard = new LeaderboardPage(page);
+    await leaderboard.open(await leaderboard.getLastMissionId());
 
-    const response = await page.request.get('http://localhost:4000/missions');
-    const missions = await response.json();
-    const lastMissionId = missions.length > 0 ? missions[missions.length - 1].id : 1;
-
-    const nextBtn = page.locator('button', { hasText: '➡'});
-    for (let i=0; i<missions.length-1; i++) {
-        await nextBtn.click();
-    }
-
-    const missionHeader = page.locator('h1');
-    await expect(missionHeader).toHaveText(new RegExp(`${lastMissionId} -`));
-
-    await nextBtn.click();
-
-    await expect(missionHeader).toHaveText(new RegExp(`${lastMissionId} -`));
+    await leaderboard.onLastMission();
+    await leaderboard.nextBtnDoesNotIncrement();
 });
+
+// test('can cycle through all missions', async ({ page }) => {
+
+// });
