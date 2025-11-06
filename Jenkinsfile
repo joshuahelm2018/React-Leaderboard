@@ -2,25 +2,37 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Repository') {
+        stage('Checkout') {
             steps {
-                echo 'Checking out source code...'
+                echo 'Fetching source code...'
                 checkout scm
             }
         }
 
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
-                echo 'Building React app...'
-                bat 'npm install'
-                bat 'npm run build'
+                dir('frontend') {
+                    echo 'Installing frontend dependencies...'
+                    bat 'npm install'
+                }
             }
         }
 
-        stage('Test') {
+        stage('Build Frontend') {
             steps {
-                echo 'Running tests...'
-                bat 'npm test -- --watchAll=false'
+                dir('frontend') {
+                    echo 'Building React app...'
+                    bat 'npm run build'
+                }
+            }
+        }
+
+        stage('Test Frontend') {
+            steps {
+                dir('frontend') {
+                    echo 'Running tests...'
+                    bat 'npm test -- --watchAll=false'
+                }
             }
         }
     }
